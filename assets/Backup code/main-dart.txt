@@ -1,0 +1,261 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:connectivity/connectivity.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Motema Safaris',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+        scaffoldBackgroundColor: Colors.white, // Set background color to white
+        appBarTheme: AppBarTheme(
+          iconTheme: IconThemeData(color: Colors.white), // Set icon color to white
+        ),
+        textTheme: TextTheme(
+          headline6: TextStyle(color: Colors.white), // Set app bar text color to white
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: Colors.black, // Change the label color to black
+        ),
+      ),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkConnectivity();
+  }
+
+  void _checkConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      _showOfflineScreen();
+    } else {
+      _navigateToHome();
+    }
+  }
+
+  void _showOfflineScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OfflineScreen(retryCallback: _checkConnectivity),
+      ),
+    );
+  }
+
+  void _navigateToHome() {
+    Timer(
+      const Duration(seconds: 2),
+          () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MyWebView(
+              initialUrl: 'https://derdy.namibiadailynews.info/motema-safaris/tours',
+              drawerLinks: [
+                'https://derdy.namibiadailynews.info/motema-safaris/tours',
+                'https://derdy.namibiadailynews.info/motema-safaris/meet-our-team',
+                'https://derdy.namibiadailynews.info/motema-safaris/faq',
+                'https://derdy.namibiadailynews.info/motema-safaris/testimonial',
+                'https://derdy.namibiadailynews.info/motema-safaris/privacy-policy-2',
+              ],
+              bottomNavLinks: [
+                'https://derdy.namibiadailynews.info/motema-safaris/tours',
+                'https://derdy.namibiadailynews.info/motema-safaris/about-us',
+                'https://derdy.namibiadailynews.info/motema-safaris/cart-2',
+                'https://derdy.namibiadailynews.info/motema-safaris/contact-us',
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/splash_icon.png',
+              width: 150,
+              height: 150,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Making Memories our Speciality',
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class OfflineScreen extends StatelessWidget {
+  final VoidCallback retryCallback;
+
+  const OfflineScreen({Key? key, required this.retryCallback}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'No internet connection',
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: retryCallback,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MyWebView extends StatefulWidget {
+  final String initialUrl;
+  final List<String> drawerLinks;
+  final List<String> bottomNavLinks;
+
+  const MyWebView({
+    Key? key,
+    required this.initialUrl,
+    required this.drawerLinks,
+    required this.bottomNavLinks,
+  }) : super(key: key);
+
+  @override
+  _MyWebViewState createState() => _MyWebViewState();
+}
+
+class _MyWebViewState extends State<MyWebView> {
+  int _currentIndex = 0;
+  late WebViewController _webViewController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Motema Safaris', style: TextStyle(color: Colors.white)), // Set app bar text color to white
+        backgroundColor: Colors.red,
+        iconTheme: IconThemeData(color: Colors.white), // Set app bar icon color to white
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.refresh,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              _webViewController.reload();
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text('Motema Safaris', style: TextStyle(color: Colors.white)), // Set drawer header text color to white
+              accountEmail: Text('info@motemasafaris.com', style: TextStyle(color: Colors.white)), // Set drawer header text color to white
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: AssetImage('assets/logo.png'), // Add your logo image path
+              ),
+            ),
+            _buildDrawerItem(Icons.home, 'Home', widget.drawerLinks[0]),
+            _buildDrawerItem(Icons.people, 'Our Team', widget.drawerLinks[1]),
+            _buildDrawerItem(Icons.help, 'FAQ', widget.drawerLinks[2]),
+            _buildDrawerItem(Icons.star, 'Testimonial', widget.drawerLinks[3]),
+            _buildDrawerItem(Icons.lock, 'Privacy Policy', widget.drawerLinks[4]),
+          ],
+        ),
+      ),
+      body: WebView(
+        initialUrl: widget.initialUrl,
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          _loadUrl(widget.bottomNavLinks[index]);
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, color: Colors.black),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info, color: Colors.black),
+            label: 'About Us',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart, color: Colors.black),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.contact_mail, color: Colors.black),
+            label: 'Contact Us',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, String url) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(icon),
+          title: Text(title),
+          onTap: () {
+            Navigator.pop(context);
+            _loadUrl(url);
+          },
+        ),
+        Divider(), // Add a divider under each menu item
+      ],
+    );
+  }
+
+  void _loadUrl(String url) {
+    _webViewController.loadUrl(url);
+  }
+}
