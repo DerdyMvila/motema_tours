@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -74,18 +72,18 @@ class _SplashScreenState extends State<SplashScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const MyWebView(
-              initialUrl: 'https://motema-safaris/motemaapp',
+              initialUrl: 'https://motema-safaris.com/motemaapp/',
               drawerLinks: [
-                'https://motema-safaris/motemaapp/tours',
-                'https://motema-safaris/motemaapp/meet-our-team',
-                'https://motema-safaris/motemaapp/faq',
-                'https://motema-safaris/motemaapp/testimonial',
+                'https://motema-safaris.com/motemaapp/',
+                'https://motema-safaris.com/motemaapp/meet-our-team/',
+                'https://motema-safaris.com/motemaapp/faq/',
+                'https://motema-safaris.com/motemaapp/testimonial/',
               ],
               bottomNavLinks: [
-                'https://motema-safaris/motemaapp',
-                'https://motema-safaris/motemaapp/about-us',
-                'https://motema-safaris/motemaapp/cart-2',
-                'https://motema-safaris/motemaapp/contact-us',
+                'https://motema-safaris.com/motemaapp/',
+                'https://motema-safaris.com/motemaapp/about-us/',
+                'https://motema-safaris.com/motemaapp/cart-2/',
+                'https://motema-safaris.com/motemaapp/contact-us/',
               ],
             ),
           ),
@@ -172,7 +170,7 @@ class _MyWebViewState extends State<MyWebView> {
       appBar: AppBar(
         title: const Text('Motema Safaris', style: TextStyle(color: Colors.white)), // Set app bar text color to white
         backgroundColor: Colors.red,
-        iconTheme: const IconThemeData(color: Colors.white), // Set app bar icon color to white
+        iconTheme: IconThemeData(color: Colors.white), // Set app bar icon color to white
         actions: [
           IconButton(
             icon: const Icon(
@@ -202,9 +200,6 @@ class _MyWebViewState extends State<MyWebView> {
             _buildDrawerItem(Icons.people, 'Our Team', widget.drawerLinks[1]),
             _buildDrawerItem(Icons.help, 'FAQ', widget.drawerLinks[2]),
             _buildDrawerItem(Icons.star, 'Testimonial', widget.drawerLinks[3]),
-            _buildSocialMediaItem(Icons.facebook, 'Facebook', 'https://facebook.com'),
-            _buildSocialMediaItem(Icons.tiktok, 'TikTok', 'https://tiktok.com'),
-            _buildSocialMediaItem(Icons.phone, 'WhatsApp', 'https://wa.me'),
           ],
         ),
       ),
@@ -255,21 +250,6 @@ class _MyWebViewState extends State<MyWebView> {
           onTap: () {
             Navigator.pop(context);
             _loadUrl(url);
-          },
-        ),
-        Divider(), // Add a divider under each menu item
-      ],
-    );
-  }
-
-  Widget _buildSocialMediaItem(IconData icon, String title, String link) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(icon),
-          title: Text(title),
-          onTap: () async {
-            await launch(link);
           },
         ),
         Divider(), // Add a divider under each menu item
